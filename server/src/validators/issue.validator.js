@@ -1,0 +1,10 @@
+import { body, query } from 'express-validator';
+import { fields, validate } from './common.js';
+const title = () => body('title').isString().bail().trim().isLength({ min: 1, max: 200 });
+const description = () => body('description').isString().bail().trim().isLength({ min: 1, max: 10000 });
+const priority = () => body('priority').isIn(['LOW', 'MEDIUM', 'HIGH']);
+export const create = [fields(['title', 'description', 'priority', 'assignedTo']), title(), description(), priority().optional(), body('assignedTo').optional({ values: 'null' }).isMongoId(), validate];
+export const update = [fields(['title', 'description', 'priority']), title().optional(), description().optional(), priority().optional(), validate];
+export const status = [fields(['status']), body('status').isIn(['OPEN', 'IN_PROGRESS', 'CLOSED']), validate];
+export const assign = [fields(['assignedTo']), body('assignedTo').custom(v => v === null || (typeof v === 'string' && /^[a-f0-9]{24}$/i.test(v))), validate];
+export const list = [query('page').optional().isInt({ min: 1, max: 1000000 }), query('limit').optional().isInt({ min: 1, max: 100 }), query('status').optional().isIn(['OPEN', 'IN_PROGRESS', 'CLOSED']), query('priority').optional().isIn(['LOW', 'MEDIUM', 'HIGH']), query('assignedTo').optional().isMongoId(), query('search').optional().isString().isLength({ max: 200 }), validate];

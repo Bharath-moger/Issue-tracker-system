@@ -1,0 +1,18 @@
+import { Router } from 'express';
+import * as controller from '../controllers/issue.controller.js';
+import * as validator from '../validators/issue.validator.js';
+import auth from '../middleware/auth.middleware.js';
+import role from '../middleware/role.middleware.js';
+import { id } from '../validators/common.js';
+import comments from './comment.routes.js';
+const router = Router();
+router.use(auth);
+router.post('/', validator.create, controller.create);
+router.get('/', validator.list, controller.list);
+router.use('/:id/comments', comments);
+router.get('/:id', id, controller.get);
+router.patch('/:id', id, validator.update, controller.update);
+router.delete('/:id', role('ADMIN'), id, controller.remove);
+router.patch('/:id/status', id, validator.status, controller.status);
+router.patch('/:id/assign', role('ADMIN'), id, validator.assign, controller.assign);
+export default router;

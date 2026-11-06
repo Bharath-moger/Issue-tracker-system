@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import * as controller from '../controllers/user.controller.js';
+import auth from '../middleware/auth.middleware.js';
+import role from '../middleware/role.middleware.js';
+import { id, fields, name, email, validate } from '../validators/common.js';
+const router = Router();
+router.use(auth, role('ADMIN'));
+router.get('/', controller.list);
+router.get('/:id', id, controller.get);
+router.patch('/:id', id, fields(['name', 'email']), name().optional(), email().optional(), validate, controller.update);
+router.delete('/:id', id, controller.remove);
+export default router;
